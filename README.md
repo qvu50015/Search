@@ -19,9 +19,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ```bash
 npm install octokit
 npm install better-auth
-npm install pg
-brew install postgresql
-brew install pgvector
+npm install @neondatabase/serverless
 ```
 
 ## Learn More
