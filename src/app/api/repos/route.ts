@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { account } from "@/db/schema";
+import { account, repos } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Octokit } from 'octokit';
@@ -30,7 +30,7 @@ export async function GET(){
         per_page: 100,
     });
     
-    const repos = data.map((r) => ({
+    const repoList = data.map((r) => ({
         id: r.full_name,
         name: r.name,
         owner: r.owner.login,
@@ -40,5 +40,20 @@ export async function GET(){
         updatedAt: r.updated_at,
     }))
 
-    return Response.json({ repos })
+    // upsert each repo into Neon
+    for (const repo of repoList) {
+        await db
+            .insert(repos)
+            .values({
+                id: repo.id,
+                userId: session.user.id,
+                defaultBranch: repo.defaultBranch ?? 'main',
+            })
+            .onConflictDoUpdate({
+                target: repos.id,
+                set: { defaultBranch: repo.defaultBranch ?? 'main' },
+            });
+    }
+
+    return Response.json({ repos: repoList })
 }
