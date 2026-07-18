@@ -8,6 +8,13 @@
       "when": 1784156606320,
       "tag": "0000_slow_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784341734476,
+      "tag": "0001_classy_shinobi_shaw",
+      "breakpoints": true
     }
   ]
 }

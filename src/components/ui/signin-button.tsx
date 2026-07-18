@@ -7,7 +7,7 @@ export function ConnectGitHubButton() {
   return (
     <Button
       variant="outline"
-      onClick={() => signIn.social({ provider: 'github' })}
+      onClick={() => signIn.social({ provider: 'github', callbackURL: '/repos' })}
       className="h-auto gap-[10.5px] rounded-none border-[#21262d] bg-[#0d0d0d] px-5.5 py-[11.5px] hover:bg-[#161616]"
     >
       <Image
