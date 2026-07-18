@@ -20,6 +20,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 npm install octokit
 npm install better-auth
 npm install @neondatabase/serverless
+npm install openai
 ```
 
 ## Learn More
