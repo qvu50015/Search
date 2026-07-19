@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { account } from "@/db/schema";
+import { account, repos } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Octokit } from 'octokit';
@@ -29,8 +29,8 @@ export async function GET(){
         sort: "updated",
         per_page: 100,
     });
-    
-    const repos = data.map((r) => ({
+
+    const repoList = data.map((r) => ({
         id: r.full_name,
         name: r.name,
         owner: r.owner.login,
@@ -40,5 +40,60 @@ export async function GET(){
         updatedAt: r.updated_at,
     }))
 
-    return Response.json({ repos })
+    // track which repos are brand new (not already in Neon) — only those
+    // need indexing kicked off; repos we've seen before keep their status
+    const newlyAddedIds: string[] = [];
+
+    // upsert each repo into Neon
+    for (const repo of repoList) {
+        const [existing] = await db
+            .select({ id: repos.id })
+            .from(repos)
+            .where(eq(repos.id, repo.id));
+
+        await db
+            .insert(repos)
+            .values({
+                id: repo.id,
+                userId: session.user.id,
+                defaultBranch: repo.defaultBranch ?? 'main',
+            })
+            .onConflictDoUpdate({
+                target: repos.id,
+                set: { defaultBranch: repo.defaultBranch ?? 'main' },
+            });
+
+        if (!existing) newlyAddedIds.push(repo.id);
+    }
+
+    // fire off indexing for new repos in the background — don't await,
+    // so this response doesn't hang on however long indexing takes
+    const cookie = (await headers()).get('cookie') ?? '';
+    for (const id of newlyAddedIds) {
+        fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/repos/${encodeURIComponent(id)}/index`, {
+            method: 'POST',
+            headers: { cookie },
+        }).catch((err) => console.error(`Failed to trigger index for ${id}:`, err));
+    }
+
+    // pull status + chunksCount back from Neon so the frontend can show
+    // indexing progress, then merge with the GitHub metadata (language etc.)
+    const dbRepos = await db
+        .select()
+        .from(repos)
+        .where(eq(repos.userId, session.user.id));
+
+    const dbById = new Map(dbRepos.map((r) => [r.id, r]));
+
+    return Response.json({
+        repos: repoList.map((repo) => ({
+            id: repo.id,
+            name: repo.name,
+            owner: repo.owner,
+            private: repo.private,
+            language: repo.language,
+            status: dbById.get(repo.id)?.status ?? 'pending',
+            chunksCount: dbById.get(repo.id)?.chunksCount ?? 0,
+        })),
+    });
 }
