@@ -70,9 +70,11 @@ export async function GET(){
     // so this response doesn't hang on however long indexing takes
     const cookie = (await headers()).get('cookie') ?? '';
     for (const id of newlyAddedIds) {
-        fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/repos/${encodeURIComponent(id)}/index`, {
+        const repo = repoList.find((r) => r.id === id);
+        fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/index`, {
             method: 'POST',
-            headers: { cookie },
+            headers: { cookie, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repoId: id, defaultBranch: repo?.defaultBranch ?? 'main' }),
         }).catch((err) => console.error(`Failed to trigger index for ${id}:`, err));
     }
 

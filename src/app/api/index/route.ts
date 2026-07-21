@@ -14,8 +14,8 @@ export async function POST(req: Request) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
   //validate input
-  const { repoId, defaultBranch } = await req.json();
-  if (typeof repoId !== 'string' || typeof defaultBranch !== 'string') {
+  const { repoId, defaultBranch: bodyBranch } = await req.json();
+  if (typeof repoId !== 'string') {
     return Response.json({ error: 'Invalid body' }, { status: 400 });
   }
 
@@ -28,6 +28,19 @@ export async function POST(req: Request) {
 
   if (!gh?.accessToken) {
     return Response.json({ error: 'No GitHub token' }, { status: 401 });
+  }
+
+  // reindex requests (e.g. from the UI button) only need to pass repoId —
+  // fall back to the branch already on file from the initial listing
+  const [existingRepo] = await db
+    .select({ defaultBranch: repos.defaultBranch })
+    .from(repos)
+    .where(eq(repos.id, repoId))
+    .limit(1);
+
+  const defaultBranch = typeof bodyBranch === 'string' ? bodyBranch : existingRepo?.defaultBranch;
+  if (typeof defaultBranch !== 'string') {
+    return Response.json({ error: 'Invalid body' }, { status: 400 });
   }
 
   // 4. reset previous indexes if reindex

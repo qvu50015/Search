@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 type IndexStatus = "pending" | "running" | "complete" | "failed";
 
@@ -58,6 +59,25 @@ function StatusPill({ status }: { status: IndexStatus }) {
 }
 
 function RepoCard({ repo }: { repo: Repo }) {
+  const queryClient = useQueryClient();
+
+  const reindex = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/index", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoId: repo.id }),
+      });
+      if (!res.ok) throw new Error("Failed to trigger reindex");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["repos"] });
+    },
+  });
+
+  const isRunning = repo.status === "running" || reindex.isPending;
+
   return (
     <div className="repo-card">
       <div className="repo-card-top">
@@ -80,6 +100,14 @@ function RepoCard({ repo }: { repo: Repo }) {
         <span className="chunks-count">
           {repo.chunksCount > 0 ? `${repo.chunksCount.toLocaleString()} chunks` : "—"}
         </span>
+        <Button
+          variant="outline"
+          size="xs"
+          disabled={isRunning}
+          onClick={() => reindex.mutate()}
+        >
+          {repo.status === "failed" ? "retry" : "reindex"}
+        </Button>
       </div>
     </div>
   );
@@ -310,21 +338,6 @@ function RootStyles() {
       }
 
       .chunks-count { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-muted); }
-
-      .index-btn {
-        font-family: 'Inter', sans-serif;
-        font-size: 12px;
-        font-weight: 500;
-        background: transparent;
-        color: var(--accent);
-        border: 1px solid var(--accent);
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.15s ease, color 0.15s ease;
-      }
-      .index-btn:hover:not(:disabled) { background: var(--accent); color: #0d1117; }
-      .index-btn:disabled { opacity: 0.5; cursor: default; color: var(--text-muted); border-color: var(--border); }
 
       .empty-state {
         font-family: 'JetBrains Mono', monospace;
