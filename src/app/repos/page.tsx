@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 
@@ -84,7 +84,7 @@ function RepoCard({ repo }: { repo: Repo }) {
   },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["repos"] });
+      queryClient.invalidateQueries({ queryKey: ["repos-status"] });
     },
   });
 
@@ -128,6 +128,7 @@ function RepoCard({ repo }: { repo: Repo }) {
 export default function ReposPage() {
   const [query, setQuery] = useState("");
 
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery({
   queryKey: ["repos"],
   queryFn: async () => {
@@ -144,9 +145,9 @@ const statusQuery = useQuery({
     if (!res.ok) throw new Error("Failed to load status");
     return res.json() as Promise<{ repos: { id: string; status: IndexStatus; chunksCount: number }[] }>;
   },
-  refetchInterval: (query) => {
-    const statuses = query.state.data?.repos ?? [];
-    const anyInProgress = statuses.some((r) => r.status === "pending" || r.status === "running");
+  refetchInterval: () => {
+    if (!data) return 3000;
+    const anyInProgress = data.repos.some((r) => r.status === "pending" || r.status === "running");
     return anyInProgress ? 3000 : false;
   },
   refetchOnMount: true,
@@ -163,10 +164,10 @@ useEffect(() => {
   });
 }, [statusQuery.data, queryClient]);
 
-  const repos = data?.repos ?? [];
+const repos = data?.repos ?? [];
 
-  const filtered = useMemo(() => {
-    if (!query.trim()) return repos;
+const filtered = useMemo(() => {
+  if (!query.trim()) return repos;
     const q = query.toLowerCase();
     return repos.filter(
       (r) => r.name.toLowerCase().includes(q) || r.language?.toLowerCase().includes(q)
