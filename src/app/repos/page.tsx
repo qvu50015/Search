@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 
@@ -71,8 +71,20 @@ function RepoCard({ repo }: { repo: Repo }) {
       if (!res.ok) throw new Error("Failed to trigger reindex");
       return res.json();
     },
+
+    onMutate: () => {
+      queryClient.setQueryData(["repos"], (old: { repos: Repo[] } | undefined) => {
+        if (!old) return old;
+        return {
+          repos: old.repos.map((r) =>
+            r.id === repo.id ? { ...r, status: "running" as IndexStatus } : r
+        ),
+      };
+    });
+  },
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["repos"] });
+      queryClient.invalidateQueries({ queryKey: ["repos-status"] });
     },
   });
 
@@ -116,26 +128,46 @@ function RepoCard({ repo }: { repo: Repo }) {
 export default function ReposPage() {
   const [query, setQuery] = useState("");
 
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery({
-    queryKey: ["repos"],
-    queryFn: async () => {
-      const res = await fetch("/api/repos");
-      if (!res.ok) throw new Error("Failed to load repos");
-      return res.json() as Promise<{ repos: Repo[] }>;
-    },
-    // indexing now runs automatically in the background on the server,
-    // so poll for status changes instead of waiting on a button click
-    refetchInterval: (query) => {
-      const repos = query.state.data?.repos ?? [];
-      const anyInProgress = repos.some((r) => r.status === "pending" || r.status === "running");
-      return anyInProgress ? 3000 : false;
-    },
+  queryKey: ["repos"],
+  queryFn: async () => {
+    const res = await fetch("/api/repos");
+    if (!res.ok) throw new Error("Failed to load repos");
+    return res.json() as Promise<{ repos: Repo[] }>;
+  },
+});
+
+const statusQuery = useQuery({
+  queryKey: ["repos-status"],
+  queryFn: async () => {
+    const res = await fetch("/api/repos/status");
+    if (!res.ok) throw new Error("Failed to load status");
+    return res.json() as Promise<{ repos: { id: string; status: IndexStatus; chunksCount: number }[] }>;
+  },
+  refetchInterval: () => {
+    if (!data) return 3000;
+    const anyInProgress = data.repos.some((r) => r.status === "pending" || r.status === "running");
+    return anyInProgress ? 3000 : false;
+  },
+  refetchOnMount: true,
+});
+
+useEffect(() => {
+  if (!statusQuery.data) return;
+  queryClient.setQueryData(["repos"], (old: { repos: Repo[] } | undefined) => {
+    if (!old) return old;
+    const byId = new Map(statusQuery.data.repos.map((s) => [s.id, s]));
+    return {
+      repos: old.repos.map((r) => ({ ...r, ...(byId.get(r.id) ?? {}) })),
+    };
   });
+}, [statusQuery.data, queryClient]);
 
-  const repos = data?.repos ?? [];
+const repos = data?.repos ?? [];
 
-  const filtered = useMemo(() => {
-    if (!query.trim()) return repos;
+const filtered = useMemo(() => {
+  if (!query.trim()) return repos;
     const q = query.toLowerCase();
     return repos.filter(
       (r) => r.name.toLowerCase().includes(q) || r.language?.toLowerCase().includes(q)
