@@ -71,6 +71,18 @@ function RepoCard({ repo }: { repo: Repo }) {
       if (!res.ok) throw new Error("Failed to trigger reindex");
       return res.json();
     },
+
+    onMutate: () => {
+      queryClient.setQueryData(["repos"], (old: { repos: Repo[] } | undefined) => {
+        if (!old) return old;
+        return {
+          repos: old.repos.map((r) =>
+            r.id === repo.id ? { ...r, status: "running" as IndexStatus } : r
+        ),
+      };
+    });
+  },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["repos-status"] });
     },
@@ -133,9 +145,9 @@ const statusQuery = useQuery({
     if (!res.ok) throw new Error("Failed to load status");
     return res.json() as Promise<{ repos: { id: string; status: IndexStatus; chunksCount: number }[] }>;
   },
-  refetchInterval: (query) => {
-    const statuses = query.state.data?.repos ?? [];
-    const anyInProgress = statuses.some((r) => r.status === "pending" || r.status === "running");
+  refetchInterval: () => {
+    if (!data) return 3000;
+    const anyInProgress = data.repos.some((r) => r.status === "pending" || r.status === "running");
     return anyInProgress ? 3000 : false;
   },
   refetchOnMount: true,
