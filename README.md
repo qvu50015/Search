@@ -1,6 +1,6 @@
 # CodeSearch
 
-Search your GitHub repositories with **natural language** — find code by concept, not by filename or keyword.
+Search your GitHub repositories with **natural language**. Find code by concept, not by filename or keyword.
 
 Ask *"where do we verify the session token"* and get the auth code back, even if you don't remember the function name. CodeSearch indexes your repos into vector embeddings and runs semantic similarity search over them.
 
