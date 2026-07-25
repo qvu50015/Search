@@ -35,7 +35,7 @@ export default function Home() {
               </li>
               <li className="flex gap-[10.5px]">
                 <span className="font-inter text-[#39d353]">→</span>
-                <span>Works on any TS/JS repo you own</span>
+                <span>Works on any TS, JS, or Python repo you own</span>
               </li>
             </ul>
             <div className="mt-11 pl-[17.5px]">
