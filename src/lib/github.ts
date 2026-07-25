@@ -1,6 +1,21 @@
 import { Octokit } from "octokit";
 
-const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
+const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.py'];
+
+// Directory names to skip entirely — dependency trees, virtualenvs, and build
+// output. Matched per path segment (not substring) so a real file like
+// `src/build.py` isn't excluded by the `build` entry.
+const IGNORE_DIRS = new Set([
+  'node_modules',
+  'venv',
+  '.venv',
+  'env',
+  'site-packages',
+  '__pycache__',
+  '.tox',
+  'dist',
+  'build',
+]);
 
 export async function fetchRepoFiles(
     token: string,
@@ -20,7 +35,7 @@ export async function fetchRepoFiles(
     const paths = tree.tree
     .filter((n) => n.type === 'blob')
     .filter((n) => EXTENSIONS.some((ext) => n.path?.endsWith(ext)))
-    .filter((n) => !n.path?.includes('node_modules'))
+    .filter((n) => !(n.path?.split('/').some((seg) => IGNORE_DIRS.has(seg)) ?? false))
     .filter((n) => !n.path?.endsWith('.d.ts'))
     .filter((n) => (n.size ?? 0) < 300_000)
     .map((n) => n.path!);

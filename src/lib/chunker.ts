@@ -20,12 +20,12 @@ export function chunkFile(
 
     for (let i = 0; i < lines.length; i += step){
         const end = Math.min(i + size, lines.length);
-        chunk.push({
-            filePath,
-            startLine: i + 1,
-            endLine: end,
-            code: lines.slice(i, end).join('\n')
-        })
+        const code = lines.slice(i, end).join('\n');
+        // Skip empty / whitespace-only chunks — the embeddings API rejects
+        // empty strings (common with 0-byte files like Python's __init__.py).
+        if (code.trim()) {
+            chunk.push({ filePath, startLine: i + 1, endLine: end, code });
+        }
         if (end === lines.length) break;
     }
     return chunk;
