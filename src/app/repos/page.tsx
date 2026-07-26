@@ -285,7 +285,7 @@ export default function ReposPage() {
         <span className="font-jetbrains-mono text-[18px] leading-none text-[#0f9d68]">›</span>
         <input
           className="flex-1 border-none bg-transparent py-2 font-jetbrains-mono text-[14px] text-[#1a2029] outline-none placeholder:text-[#6b7280]"
-          placeholder="search your code in plain English — e.g. where do we verify the session token"
+          placeholder="Search your code in plain English — e.g. where do we verify the session token"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           autoFocus
@@ -344,7 +344,7 @@ export default function ReposPage() {
       <div className="mb-5 flex gap-3">
         <input
           className="flex-1 rounded-[6px] border border-[#dfe2e6] bg-[#f6f7f8] px-3.5 py-2.5 font-jetbrains-mono text-[13px] text-[#1a2029] outline-none transition-colors placeholder:text-[#6b7280] focus:border-[#0f9d68]"
-          placeholder="grep repos or language..."
+          placeholder="Search repository name..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
