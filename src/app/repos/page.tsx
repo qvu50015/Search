@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -61,7 +61,11 @@ function StatusPill({ status }: { status: IndexStatus }) {
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full border px-2 py-[3px] font-jetbrains-mono text-[11px]"
-      style={{ color: meta.color, borderColor: `${meta.color}40`, background: `${meta.color}14` }}
+      style={{
+        color: meta.color,
+        borderColor: `${meta.color}40`,
+        background: `${meta.color}14`,
+      }}
     >
       <span
         className={`inline-block h-1.5 w-1.5 rounded-full${pulsing ? " animate-pulse" : ""}`}
@@ -87,14 +91,17 @@ function RepoCard({ repo }: { repo: Repo }) {
     },
 
     onMutate: () => {
-      queryClient.setQueryData(["repos"], (old: { repos: Repo[] } | undefined) => {
-        if (!old) return old;
-        return {
-          repos: old.repos.map((r) =>
-            r.id === repo.id ? { ...r, status: "running" as IndexStatus } : r
-          ),
-        };
-      });
+      queryClient.setQueryData(
+        ["repos"],
+        (old: { repos: Repo[] } | undefined) => {
+          if (!old) return old;
+          return {
+            repos: old.repos.map((r) =>
+              r.id === repo.id ? { ...r, status: "running" as IndexStatus } : r,
+            ),
+          };
+        },
+      );
     },
 
     onSuccess: () => {
@@ -128,7 +135,9 @@ function RepoCard({ repo }: { repo: Repo }) {
 
       <div className="flex items-center justify-between border-t border-[#dfe2e6] pt-2.5">
         <span className="font-jetbrains-mono text-[11.5px] text-[#6b7280]">
-          {repo.chunksCount > 0 ? `${repo.chunksCount.toLocaleString()} chunks` : "—"}
+          {repo.chunksCount > 0
+            ? `${repo.chunksCount.toLocaleString()} chunks`
+            : "—"}
         </span>
         <Button
           variant="outline"
@@ -157,7 +166,9 @@ function ResultCard({ hit }: { hit: SearchHit }) {
           <span className="font-semibold text-[#1a2029]">{name}</span>
           <span className="mx-1.5 text-[#6b7280]">·</span>
           <span className="text-[#1a2029]">{hit.filePath}</span>
-          <span className="text-[#6b7280]">:{hit.startLine}-{hit.endLine}</span>
+          <span className="text-[#6b7280]">
+            :{hit.startLine}-{hit.endLine}
+          </span>
         </span>
         <span className="shrink-0 rounded-full border border-[#0f9d6840] bg-[#0f9d6814] px-[7px] py-0.5 font-jetbrains-mono text-[11px] text-[#0f9d68]">
           {pct}%
@@ -180,7 +191,9 @@ export default function ReposPage() {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(scopeRepoId ? { query: q, repoId: scopeRepoId } : { query: q }),
+        body: JSON.stringify(
+          scopeRepoId ? { query: q, repoId: scopeRepoId } : { query: q },
+        ),
       });
       if (!res.ok) throw new Error("Search failed");
       return res.json() as Promise<{ results: SearchHit[] }>;
@@ -209,11 +222,15 @@ export default function ReposPage() {
     queryFn: async () => {
       const res = await fetch("/api/repos/status");
       if (!res.ok) throw new Error("Failed to load status");
-      return res.json() as Promise<{ repos: { id: string; status: IndexStatus; chunksCount: number }[] }>;
+      return res.json() as Promise<{
+        repos: { id: string; status: IndexStatus; chunksCount: number }[];
+      }>;
     },
     refetchInterval: () => {
       if (!data) return 3000;
-      const anyInProgress = data.repos.some((r) => r.status === "pending" || r.status === "running");
+      const anyInProgress = data.repos.some(
+        (r) => r.status === "pending" || r.status === "running",
+      );
       return anyInProgress ? 3000 : false;
     },
     refetchOnMount: true,
@@ -221,13 +238,16 @@ export default function ReposPage() {
 
   useEffect(() => {
     if (!statusQuery.data) return;
-    queryClient.setQueryData(["repos"], (old: { repos: Repo[] } | undefined) => {
-      if (!old) return old;
-      const byId = new Map(statusQuery.data.repos.map((s) => [s.id, s]));
-      return {
-        repos: old.repos.map((r) => ({ ...r, ...(byId.get(r.id) ?? {}) })),
-      };
-    });
+    queryClient.setQueryData(
+      ["repos"],
+      (old: { repos: Repo[] } | undefined) => {
+        if (!old) return old;
+        const byId = new Map(statusQuery.data.repos.map((s) => [s.id, s]));
+        return {
+          repos: old.repos.map((r) => ({ ...r, ...(byId.get(r.id) ?? {}) })),
+        };
+      },
+    );
   }, [statusQuery.data, queryClient]);
 
   const repos = useMemo(() => data?.repos ?? [], [data]);
@@ -241,7 +261,9 @@ export default function ReposPage() {
     if (!query.trim()) return repos;
     const q = query.toLowerCase();
     return repos.filter(
-      (r) => r.name.toLowerCase().includes(q) || r.language?.toLowerCase().includes(q)
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.language?.toLowerCase().includes(q),
     );
   }, [repos, query]);
 
@@ -251,8 +273,9 @@ export default function ReposPage() {
     return { total: repos.length, indexed, priv };
   }, [repos]);
 
-  if (isLoading) return <div className={ROOT}>loading repos…</div>;
-  if (error) return <div className={ROOT}>something went wrong loading your repos.</div>;
+  if (isLoading) return <div className={ROOT}>Loading Repositories...</div>;
+  if (error)
+    return <div className={ROOT}>something went wrong loading your repos.</div>;
 
   return (
     <div className={ROOT}>
@@ -264,16 +287,28 @@ export default function ReposPage() {
         </div>
         <div className="mt-3.5 flex gap-7 border-t border-[#dfe2e6] pt-3.5">
           <div className="font-jetbrains-mono">
-            <div className="text-[22px] font-bold leading-none text-[#1a2029]">{stats.total}</div>
-            <div className="mt-1 text-[11px] tracking-[0.03em] lowercase text-[#6b7280]">repositories</div>
+            <div className="text-[22px] font-bold leading-none text-[#1a2029]">
+              {stats.total}
+            </div>
+            <div className="mt-1 text-[11px] tracking-[0.03em] lowercase text-[#6b7280]">
+              repositories
+            </div>
           </div>
           <div className="font-jetbrains-mono">
-            <div className="text-[22px] font-bold leading-none text-[#5fd4a0]">{stats.indexed}</div>
-            <div className="mt-1 text-[11px] tracking-[0.03em] lowercase text-[#6b7280]">indexed</div>
+            <div className="text-[22px] font-bold leading-none text-[#5fd4a0]">
+              {stats.indexed}
+            </div>
+            <div className="mt-1 text-[11px] tracking-[0.03em] lowercase text-[#6b7280]">
+              indexed
+            </div>
           </div>
           <div className="font-jetbrains-mono">
-            <div className="text-[22px] font-bold leading-none text-[#1a2029]">{stats.priv}</div>
-            <div className="mt-1 text-[11px] tracking-[0.03em] lowercase text-[#6b7280]">private</div>
+            <div className="text-[22px] font-bold leading-none text-[#1a2029]">
+              {stats.priv}
+            </div>
+            <div className="mt-1 text-[11px] tracking-[0.03em] lowercase text-[#6b7280]">
+              private
+            </div>
           </div>
         </div>
       </div>
@@ -282,10 +317,12 @@ export default function ReposPage() {
         onSubmit={runSearch}
         className="mb-6 flex items-center gap-2.5 rounded-[10px] border border-[#dfe2e6] bg-[#f6f7f8] py-1.5 pr-1.5 pl-4 transition focus-within:border-[#0f9d68] focus-within:shadow-[0_0_0_3px_#0f9d6822]"
       >
-        <span className="font-jetbrains-mono text-[18px] leading-none text-[#0f9d68]">›</span>
+        <span className="font-jetbrains-mono text-[18px] leading-none text-[#0f9d68]">
+          ›
+        </span>
         <input
           className="flex-1 border-none bg-transparent py-2 font-jetbrains-mono text-[14px] text-[#1a2029] outline-none placeholder:text-[#6b7280]"
-          placeholder="search your code in plain English — e.g. where do we verify the session token"
+          placeholder="Search your code in plain English — e.g. where do we verify the session token"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           autoFocus
@@ -305,7 +342,11 @@ export default function ReposPage() {
             ))}
           </select>
         )}
-        <Button type="submit" size="sm" disabled={search.isPending || !searchInput.trim()}>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={search.isPending || !searchInput.trim()}
+        >
           {search.isPending ? "searching…" : "search"}
         </Button>
       </form>
@@ -319,9 +360,12 @@ export default function ReposPage() {
       {search.data && (
         <div className="mb-9">
           <div className="mb-3 font-jetbrains-mono text-[12px] text-[#6b7280]">
-            {search.data.results.length} result{search.data.results.length === 1 ? "" : "s"}
+            {search.data.results.length} result
+            {search.data.results.length === 1 ? "" : "s"}
             {" for "}
-            <span className="text-[#1a2029]">&ldquo;{search.variables}&rdquo;</span>
+            <span className="text-[#1a2029]">
+              &ldquo;{search.variables}&rdquo;
+            </span>
           </div>
           {search.data.results.length === 0 ? (
             <div className="py-10 text-center font-jetbrains-mono text-[13px] text-[#6b7280]">
@@ -330,7 +374,10 @@ export default function ReposPage() {
           ) : (
             <div className="flex flex-col gap-3">
               {search.data.results.map((hit) => (
-                <ResultCard key={`${hit.repoId}:${hit.filePath}:${hit.startLine}`} hit={hit} />
+                <ResultCard
+                  key={`${hit.repoId}:${hit.filePath}:${hit.startLine}`}
+                  hit={hit}
+                />
               ))}
             </div>
           )}
@@ -344,7 +391,7 @@ export default function ReposPage() {
       <div className="mb-5 flex gap-3">
         <input
           className="flex-1 rounded-[6px] border border-[#dfe2e6] bg-[#f6f7f8] px-3.5 py-2.5 font-jetbrains-mono text-[13px] text-[#1a2029] outline-none transition-colors placeholder:text-[#6b7280] focus:border-[#0f9d68]"
-          placeholder="grep repos or language..."
+          placeholder="Search repository name..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

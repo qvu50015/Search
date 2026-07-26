@@ -1,33 +1,39 @@
 // app/api/index/route.ts
-import { auth } from '@/lib/auth';
-import { db } from '@/db';
-import { account, repos, chunks } from '@/db/schema';
-import { and, eq } from 'drizzle-orm';
-import { headers } from 'next/headers';
-import { fetchRepoFiles } from '@/lib/github';
-import { chunkFile } from '@/lib/chunker';
-import { embedBatch } from '@/lib/embed';
+import { auth } from "@/lib/auth";
+import { db } from "@/db";
+import { account, repos, chunks } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { fetchRepoFiles } from "@/lib/github";
+import { chunkFile } from "@/lib/chunker";
+import { embedBatch } from "@/lib/embed";
 
 export async function POST(req: Request) {
-  //auth for the index req bih 
+  //auth for the index req bih
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session)
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   //validate input
   const { repoId, defaultBranch: bodyBranch } = await req.json();
-  if (typeof repoId !== 'string') {
-    return Response.json({ error: 'Invalid body' }, { status: 400 });
+  if (typeof repoId !== "string") {
+    return Response.json({ error: "Invalid body" }, { status: 400 });
   }
 
   // get gihhub token
   const [gh] = await db
     .select()
     .from(account)
-    .where(and(eq(account.userId, session.user.id), eq(account.providerId, 'github')))
+    .where(
+      and(
+        eq(account.userId, session.user.id),
+        eq(account.providerId, "github"),
+      ),
+    )
     .limit(1);
 
   if (!gh?.accessToken) {
-    return Response.json({ error: 'No GitHub token' }, { status: 401 });
+    return Response.json({ error: "No GitHub token" }, { status: 401 });
   }
 
   // reindex requests (e.g. from the UI button) only need to pass repoId —
@@ -38,9 +44,10 @@ export async function POST(req: Request) {
     .where(eq(repos.id, repoId))
     .limit(1);
 
-  const defaultBranch = typeof bodyBranch === 'string' ? bodyBranch : existingRepo?.defaultBranch;
-  if (typeof defaultBranch !== 'string') {
-    return Response.json({ error: 'Invalid body' }, { status: 400 });
+  const defaultBranch =
+    typeof bodyBranch === "string" ? bodyBranch : existingRepo?.defaultBranch;
+  if (typeof defaultBranch !== "string") {
+    return Response.json({ error: "Invalid body" }, { status: 400 });
   }
 
   // 4. reset previous indexes if reindex
@@ -49,7 +56,7 @@ export async function POST(req: Request) {
     id: repoId,
     userId: session.user.id,
     defaultBranch,
-    status: 'running',
+    status: "running",
   });
 
   try {
@@ -58,8 +65,9 @@ export async function POST(req: Request) {
     const allChunks = files.flatMap((f) => chunkFile(f.content, f.path));
 
     if (allChunks.length === 0) {
-      await db.update(repos)
-        .set({ status: 'complete', chunksCount: 0 })
+      await db
+        .update(repos)
+        .set({ status: "complete", chunksCount: 0 })
         .where(eq(repos.id, repoId));
       return Response.json({ ok: true, chunks: 0 });
     }
@@ -83,16 +91,21 @@ export async function POST(req: Request) {
     }
 
     // mark it complete.
-    await db.update(repos)
-      .set({ status: 'complete', chunksCount: allChunks.length })
+    await db
+      .update(repos)
+      .set({ status: "complete", chunksCount: allChunks.length })
       .where(eq(repos.id, repoId));
 
     return Response.json({ ok: true, chunks: allChunks.length });
   } catch (err) {
     //if error, marked failed.
-    await db.update(repos)
-      .set({ status: 'failed', error: err instanceof Error ? err.message : String(err) })
+    await db
+      .update(repos)
+      .set({
+        status: "failed",
+        error: err instanceof Error ? err.message : String(err),
+      })
       .where(eq(repos.id, repoId));
-    return Response.json({ error: 'Indexing failed' }, { status: 500 });
+    return Response.json({ error: "Indexing failed" }, { status: 500 });
   }
 }
