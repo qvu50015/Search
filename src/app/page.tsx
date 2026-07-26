@@ -49,11 +49,13 @@ export default function Home() {
         </div>
       </main>
       <footer className="opacity-0 animate-fade-in border-t border-[#21262d] px-7 py-3.75">
-        <div className="flex gap-7 font-inter text-[10.5px]">
+        <div className="grid grid-cols-3 items-center font-inter text-[10.5px]">
           <div className="flex gap-2.5">
             <span className="text-[#484f58] font-bold">By <a className="no-underline hover:underline" href="https://github.com/vnnphm">Vinny Pham </a>&
             <a className="no-underline hover:underline" href="https://github.com/qvu50015"> Quang Vu</a></span>
           </div>
+          <span className="text-center text-[#484f58]">Built with TypeScript, Next.js, and PostgreSQL.</span>
+          <span className="justify-self-end" />
         </div>
       </footer>
     </div>

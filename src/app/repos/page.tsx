@@ -251,7 +251,7 @@ export default function ReposPage() {
     return { total: repos.length, indexed, priv };
   }, [repos]);
 
-  if (isLoading) return <div className={ROOT}>loading repos…</div>;
+  if (isLoading) return <div className={ROOT}>Loading Repositories...</div>;
   if (error) return <div className={ROOT}>something went wrong loading your repos.</div>;
 
   return (
