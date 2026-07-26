@@ -1,5 +1,5 @@
 // db/schema.ts
-import { relations } from 'drizzle-orm';
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   serial,
@@ -10,142 +10,139 @@ import {
   index,
   pgEnum,
   boolean,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
-
-
-export const user = pgTable('user', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  emailVerified: boolean('email_verified').default(false).notNull(),
-  image: text('image'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
 });
 
 export const session = pgTable(
-  'session',
+  "session",
   {
-    id: text('id').primaryKey(),
-    expiresAt: timestamp('expires_at').notNull(),
-    token: text('token').notNull().unique(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at')
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at").notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .$onUpdate(() => new Date())
       .notNull(),
-    ipAddress: text('ip_address'),
-    userAgent: text('user_agent'),
-    userId: text('user_id')
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
-  (table) => [index('session_userId_idx').on(table.userId)],
+  (table) => [index("session_userId_idx").on(table.userId)],
 );
 
 export const account = pgTable(
-  'account',
+  "account",
   {
-    id: text('id').primaryKey(),
-    accountId: text('account_id').notNull(),
-    providerId: text('provider_id').notNull(),
-    userId: text('user_id')
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    accessToken: text('access_token'),
-    refreshToken: text('refresh_token'),
-    idToken: text('id_token'),
-    accessTokenExpiresAt: timestamp('access_token_expires_at'),
-    refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
-    scope: text('scope'),
-    password: text('password'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at')
+      .references(() => user.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index('account_userId_idx').on(table.userId)],
+  (table) => [index("account_userId_idx").on(table.userId)],
 );
 
 export const verification = pgTable(
-  'verification',
+  "verification",
   {
-    id: text('id').primaryKey(),
-    identifier: text('identifier').notNull(),
-    value: text('value').notNull(),
-    expiresAt: timestamp('expires_at').notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at')
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index('verification_identifier_idx').on(table.identifier)],
+  (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
 //APP TABLES
 
-
-export const indexStatus = pgEnum('index_status', [
-  'pending',
-  'running',
-  'complete',
-  'failed',
+export const indexStatus = pgEnum("index_status", [
+  "pending",
+  "running",
+  "complete",
+  "failed",
 ]);
 
 export const repos = pgTable(
-  'repos',
+  "repos",
   {
     // GitHub's "owner/name" — naturally unique, human-readable
-    id: text('id').primaryKey(),
-    userId: text('user_id')
+    id: text("id").primaryKey(),
+    userId: text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    defaultBranch: text('default_branch').notNull(),
-    lastIndexedSha: text('last_indexed_sha'),
-    status: indexStatus('status').notNull().default('pending'),
-    chunksCount: integer('chunks_count').notNull().default(0),
-    error: text('error'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at')
+      .references(() => user.id, { onDelete: "cascade" }),
+    defaultBranch: text("default_branch").notNull(),
+    lastIndexedSha: text("last_indexed_sha"),
+    status: indexStatus("status").notNull().default("pending"),
+    chunksCount: integer("chunks_count").notNull().default(0),
+    error: text("error"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [
-    index('repos_user_id_idx').on(table.userId),
-    index('repos_status_idx').on(table.status),
+    index("repos_user_id_idx").on(table.userId),
+    index("repos_status_idx").on(table.status),
   ],
 );
 
 export const chunks = pgTable(
-  'chunks',
+  "chunks",
   {
-    id: serial('id').primaryKey(),
-    repoId: text('repo_id')
+    id: serial("id").primaryKey(),
+    repoId: text("repo_id")
       .notNull()
-      .references(() => repos.id, { onDelete: 'cascade' }),
-    filePath: text('file_path').notNull(),      // "src/auth/session.ts"
-    startLine: integer('start_line').notNull(), // 1-indexed, inclusive
-    endLine: integer('end_line').notNull(),     // 1-indexed, inclusive
-    code: text('code').notNull(),               // raw source of this chunk
+      .references(() => repos.id, { onDelete: "cascade" }),
+    filePath: text("file_path").notNull(), // "src/auth/session.ts"
+    startLine: integer("start_line").notNull(), // 1-indexed, inclusive
+    endLine: integer("end_line").notNull(), // 1-indexed, inclusive
+    code: text("code").notNull(), // raw source of this chunk
     // Dimension MUST match embedding model output.
     // text-embedding-3-small = 1536. Changing this requires re-embedding everything.
-    embedding: vector('embedding', { dimensions: 1536 }).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     // HNSW index for fast cosine-similarity search.
     // Must match the operator used in queries (<=> for cosine).
-    index('chunks_embedding_idx').using(
-      'hnsw',
-      table.embedding.op('vector_cosine_ops'),
+    index("chunks_embedding_idx").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops"),
     ),
     // Speeds up the repoId filter that precedes every vector search.
-    index('chunks_repo_id_idx').on(table.repoId),
+    index("chunks_repo_id_idx").on(table.repoId),
   ],
 );
 
