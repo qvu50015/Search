@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import {ConnectGitHubButton} from "@/components/ui/signin-button"
+import { ConnectGitHubButton } from "@/components/ui/signin-button";
 
 export default function Home() {
   return (
@@ -16,9 +16,14 @@ export default function Home() {
           </div>
           <div className="opacity-0 animate-fade-in">
             <p className="mt-2 pl-[17.5px] font-inter text-[12.5px] leading-[19.9px] text-[#484f58]">
-              Search your repositories with <span className="font-extrabold text-[#c9d1d9]">natural language.</span>
+              Search your repositories with{" "}
+              <span className="font-extrabold text-[#c9d1d9]">
+                natural language.
+              </span>
               <br />
-              Find code by <span className="font-semibold text-[#c9d1d9]">concept</span> — not filename, not keyword.
+              Find code by{" "}
+              <span className="font-semibold text-[#c9d1d9]">concept</span> —
+              not filename, not keyword.
             </p>
             <ul className="mt-9 flex flex-col gap-3 pl-[17.5px] font-inter text-[12px] text-[#484f58]">
               <li className="flex gap-[10.5px]">
@@ -27,7 +32,9 @@ export default function Home() {
               </li>
               <li className="flex gap-[10.5px]">
                 <span className="font-inter text-[#39d353]">→</span>
-                <span>Finds function even when you don't remember the name</span>
+                <span>
+                  Finds function even when you don't remember the name
+                </span>
               </li>
               <li className="flex gap-[10.5px]">
                 <span className="font-inter text-[#39d353]">→</span>
@@ -35,14 +42,17 @@ export default function Home() {
               </li>
               <li className="flex gap-[10.5px]">
                 <span className="font-inter text-[#39d353]">→</span>
-                <span>Works on any Typescript, Javascript, or Python repository you own</span>
+                <span>
+                  Works on any Typescript, Javascript, or Python repository you
+                  own
+                </span>
               </li>
             </ul>
             <div className="mt-11 pl-[17.5px]">
-              <ConnectGitHubButton/>
+              <ConnectGitHubButton />
               <p className="mt-[10.5px] font-inter text-[10.5px] text-[#484f58]">
-                Read-only GitHub Access · Code securely stored in your private index · Embeddings via
-                OpenAI API.
+                Read-only GitHub Access · Code securely stored in your private
+                index · Embeddings via OpenAI API.
               </p>
             </div>
           </div>
@@ -51,10 +61,27 @@ export default function Home() {
       <footer className="opacity-0 animate-fade-in border-t border-[#21262d] px-7 py-3.75">
         <div className="grid grid-cols-3 items-center font-inter text-[10.5px]">
           <div className="flex gap-2.5">
-            <span className="text-[#484f58] font-bold">By <a className="no-underline hover:underline" href="https://github.com/vnnphm">Vinny Pham </a>&
-            <a className="no-underline hover:underline" href="https://github.com/qvu50015"> Quang Vu</a></span>
+            <span className="text-[#484f58] font-bold">
+              By{" "}
+              <a
+                className="no-underline hover:underline"
+                href="https://github.com/vnnphm"
+              >
+                Vinny Pham{" "}
+              </a>
+              &
+              <a
+                className="no-underline hover:underline"
+                href="https://github.com/qvu50015"
+              >
+                {" "}
+                Quang Vu
+              </a>
+            </span>
           </div>
-          <span className="text-center text-[#484f58]">Built with TypeScript, Next.js, and PostgreSQL.</span>
+          <span className="text-center text-[#484f58]">
+            Built with TypeScript, Next.js, and PostgreSQL.
+          </span>
           <span className="justify-self-end" />
         </div>
       </footer>
