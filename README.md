@@ -4,6 +4,10 @@ Search your GitHub repositories with **natural language**. Find code by concept,
 
 Ask *"where do we verify the session token"* and get the auth code back, even if you don't remember the function name. CodeSearch indexes your repos into vector embeddings and runs semantic similarity search over them.
 
+## Watch the demo here!
+
+[![Watch the Demo Here!](https://img.youtube.com/vi/0OuKkBkK_qA/0.jpg)](https://www.youtube.com/watch?v=0OuKkBkK_qA)
+
 ---
 
 ## Features
