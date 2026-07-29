@@ -23,20 +23,8 @@ Ask *"where do we verify the session token"* and get the auth code back, even if
 
 ## How it works
 
-```mermaid
-flowchart LR
-    A[GitHub OAuth] --> B[GET /api/repos]
-    B -->|new repos| C[POST /api/index]
-    C --> D[Fetch files - octokit]
-    D --> E[Chunk - line-based]
-    E --> F[Embed - OpenAI]
-    F --> G[(Postgres + pgvector)]
-    H[Search query] --> I[POST /api/search]
-    I --> J[Embed query]
-    J --> K[Cosine similarity - HNSW index]
-    K --> G
-    K --> L[Ranked results]
-```
+<img width="1411" height="223" alt="codesearch" src="https://github.com/user-attachments/assets/fe7f46e6-2026-4cee-bba7-d241e13d9692" />
+
 
 **Indexing pipeline** (`POST /api/index`):
 1. `fetchRepoFiles` pulls the repo tree via the GitHub API, keeping only supported extensions and skipping dependency/build directories (`node_modules`, `venv`, `__pycache__`, `dist`, …) and files over 300 KB.
