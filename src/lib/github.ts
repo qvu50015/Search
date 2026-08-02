@@ -1,3 +1,5 @@
+// src/lib/github.ts
+
 import { Octokit } from "octokit";
 
 const EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".py"];

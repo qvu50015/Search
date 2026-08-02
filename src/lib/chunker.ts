@@ -1,3 +1,5 @@
+// src/lib/chunker.ts
+
 export type Chunk = {
   filePath: string;
   startLine: number;
