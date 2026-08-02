@@ -1,4 +1,5 @@
 // src/app/api/search/route.ts
+
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { chunks, repos } from "@/db/schema";

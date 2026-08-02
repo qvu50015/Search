@@ -1,6 +1,8 @@
+// src/lib/github.ts
+
 import { Octokit } from "octokit";
 
-const EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".py"];
+const EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".py", ".c",".cpp", ".h", ".hpp"];
 
 // Directory names to skip entirely — dependency trees, virtualenvs, and build
 // output. Matched per path segment (not substring) so a real file like

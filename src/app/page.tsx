@@ -1,3 +1,5 @@
+// src/app/page.tsx
+
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -43,7 +45,7 @@ export default function Home() {
               <li className="flex gap-[10.5px]">
                 <span className="font-inter text-[#39d353]">→</span>
                 <span>
-                  Works on any Typescript, Javascript, or Python repository you
+                  Works on any TypeScript, JavaScript, Python, or C/C++ repository you
                   own
                 </span>
               </li>

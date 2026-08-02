@@ -1,4 +1,5 @@
-// app/api/index/route.ts
+// src/app/api/index/route.ts
+
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { account, repos, chunks } from "@/db/schema";
