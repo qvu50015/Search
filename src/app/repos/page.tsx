@@ -386,8 +386,8 @@ export default function ReposPage() {
         </div>
       )}
 
-      <div className="mb-3.5 border-b border-[#dfe2e6] pb-2 font-jetbrains-mono text-[12px] tracking-[0.04em] lowercase text-[#6b7280]">
-        indexed repositories
+      <div className="mb-3.5 border-b border-[#dfe2e6] pb-2 font-jetbrains-mono text-[12px] tracking-[0.04em] text-[#6b7280]">
+        Indexed Repositories
       </div>
 
       <div className="mb-5 flex gap-3">
