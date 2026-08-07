@@ -6,6 +6,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
+import { AccountMenu } from "@/components/ui/account-menu";
 
 type IndexStatus = "pending" | "running" | "complete" | "failed";
 
@@ -316,11 +317,14 @@ export default function ReposPage() {
 
   return (
     <div className={ROOT}>
-      {session?.user?.name && (
-        <div className="mb-5 font-jetbrains-mono text-[15px] font-semibold text-[#1a2029] opacity-0 [animation:line-in_0.5s_ease-out_forwards]">
-          Welcome, {session.user.name}
-        </div>
-      )}
+      <div className="mb-5 flex items-center justify-between">
+        {session?.user?.name && (
+          <div className="font-jetbrains-mono text-[15px] font-semibold text-[#1a2029] opacity-0 [animation:line-in_0.5s_ease-out_forwards]">
+            Welcome, {session.user.name}
+          </div>
+        )}
+        <AccountMenu />
+      </div>
       <div className="mb-7 rounded-[8px] border border-[#dfe2e6] bg-[#f6f7f8] px-[22px] py-[18px] font-jetbrains-mono">
         <div className="flex items-center gap-2 text-[13px] text-[#6b7280]">
           <span className="text-[#0f9d68]">$</span>
