@@ -190,6 +190,7 @@ export default function ReposPage() {
   const [query, setQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [scopeRepoId, setScopeRepoId] = useState(""); // "" = all repos
+  const [resultsOpen, setResultsOpen] = useState(true);
 
   const search = useMutation({
     mutationFn: async (q: string) => {
@@ -405,28 +406,40 @@ export default function ReposPage() {
 
       {search.data && (
         <div className="mb-9">
-          <div className="mb-3 font-jetbrains-mono text-[12px] text-[#6b7280]">
-            {search.data.results.length} result
-            {search.data.results.length === 1 ? "" : "s"}
-            {" for "}
-            <span className="text-[#1a2029]">
-              &ldquo;{search.variables}&rdquo;
+          <button
+            onClick={() => setResultsOpen((v) => !v)}
+            className="mb-3 flex w-full items-center justify-between font-jetbrains-mono text-[12px] text-[#6b7280] transition-colors hover:text-[#1a2029]"
+          >
+            <span>
+              {search.data.results.length} result
+              {search.data.results.length === 1 ? "" : "s"}
+              {" for "}
+              <span className="text-[#1a2029]">
+                &ldquo;{search.variables}&rdquo;
+              </span>
             </span>
-          </div>
-          {search.data.results.length === 0 ? (
-            <div className="py-10 text-center font-jetbrains-mono text-[13px] text-[#6b7280]">
-              no matching code found
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {search.data.results.map((hit) => (
-                <ResultCard
-                  key={`${hit.repoId}:${hit.filePath}:${hit.startLine}`}
-                  hit={hit}
-                />
-              ))}
-            </div>
-          )}
+            <span
+              className={`text-[10px] transition-transform ${resultsOpen ? "rotate-180" : ""}`}
+            >
+              ▾
+            </span>
+          </button>
+
+          {resultsOpen &&
+            (search.data.results.length === 0 ? (
+              <div className="py-10 text-center font-jetbrains-mono text-[13px] text-[#6b7280]">
+                no matching code found
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {search.data.results.map((hit) => (
+                  <ResultCard
+                    key={`${hit.repoId}:${hit.filePath}:${hit.startLine}`}
+                    hit={hit}
+                  />
+                ))}
+              </div>
+            ))}
         </div>
       )}
 
