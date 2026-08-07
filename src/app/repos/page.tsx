@@ -5,6 +5,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
 
 type IndexStatus = "pending" | "running" | "complete" | "failed";
 
@@ -184,6 +185,7 @@ function ResultCard({ hit }: { hit: SearchHit }) {
 }
 
 export default function ReposPage() {
+  const { data: session } = useSession();
   const [query, setQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [scopeRepoId, setScopeRepoId] = useState(""); // "" = all repos
@@ -275,12 +277,50 @@ export default function ReposPage() {
     return { total: repos.length, indexed, priv };
   }, [repos]);
 
-  if (isLoading) return <div className={ROOT}>Loading Repositories...</div>;
+  if (isLoading) {
+    return (
+      <div className={ROOT}>
+        <div className="flex min-h-[70vh] flex-col items-center justify-center">
+          <div className="w-full max-w-[380px] rounded-[8px] border border-[#dfe2e6] bg-[#f6f7f8] px-6 py-5 font-jetbrains-mono">
+            <div className="flex items-center gap-2 text-[13px]">
+              <span className="text-[#0f9d68]">$</span>
+              <span className="text-[#1a2029]">Loading Repositories</span>
+              <span className="ml-0.5 inline-block h-3.5 w-[7px] bg-[#0f9d68] animate-[blink_1.1s_steps(1)_infinite]" />
+            </div>
+
+            <div className="mt-4 flex flex-col gap-1.5 text-[11.5px] text-[#6b7280]">
+              <div className="flex items-center gap-2 opacity-0 [animation:line-in_0.4s_ease-out_0.1s_forwards]">
+                <span className="text-[#0f9d68]">✓</span>
+                Sucessfully Authenticated With Github
+              </div>
+              <div className="flex items-center gap-2 opacity-0 [animation:line-in_0.4s_ease-out_0.6s_forwards]">
+                <span className="text-[#0f9d68]">✓</span>
+                Fetched Repository List
+              </div>
+              <div className="flex items-center gap-2 opacity-0 [animation:line-in_0.4s_ease-out_1.1s_forwards]">
+                <span className="inline-block h-2 w-2 shrink-0 animate-spin rounded-full border-2 border-[#0f9d68] border-t-transparent" />
+                Reading Index Status
+              </div>
+            </div>
+
+            <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-[#dfe2e6]">
+              <div className="h-full w-1/3 rounded-full bg-[#0f9d68] [animation:scan-bar_1.4s_ease-in-out_infinite]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (error)
     return <div className={ROOT}>something went wrong loading your repos.</div>;
 
   return (
     <div className={ROOT}>
+      {session?.user?.name && (
+        <div className="mb-5 font-jetbrains-mono text-[15px] font-semibold text-[#1a2029] opacity-0 [animation:line-in_0.5s_ease-out_forwards]">
+          Welcome, {session.user.name}
+        </div>
+      )}
       <div className="mb-7 rounded-[8px] border border-[#dfe2e6] bg-[#f6f7f8] px-[22px] py-[18px] font-jetbrains-mono">
         <div className="flex items-center gap-2 text-[13px] text-[#6b7280]">
           <span className="text-[#0f9d68]">$</span>
